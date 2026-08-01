@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Generator - MTG</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root{
+    --red: #b5121b;
+    --red-dark: #7a0d13;
+    --black: #1a1a1a;
+    --gray: #6b6b6b;
+    --border: #e5e5e5;
+    --bg: #f4f4f5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--black);
+  }
+  .app{
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px){
+    .app{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------- FORM ---------- */
+  .panel{
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+  .panel h2{
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--red);
+    border-bottom: 2px solid var(--red);
+    padding-bottom: 8px;
+    margin: 0 0 14px 0;
+  }
+  .smart-box{
+    background: #fdeceb;
+    border: 1.5px dashed var(--red);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 20px;
+  }
+  .smart-box label{
+    display:block;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: var(--red);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+  .smart-box textarea{
+    width:100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    resize: vertical;
+  }
+  .smart-box .hint{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 6px;
+    line-height:1.5;
+  }
+  .field{
+    margin-bottom: 12px;
+  }
+  .field label{
+    display:block;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: var(--gray);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .field input, .field textarea{
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    resize: vertical;
+  }
+  .field input:focus, .field textarea:focus{
+    outline: none;
+    border-color: var(--red);
+  }
+  .row2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .section-title{
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--black);
+    margin: 18px 0 8px 0;
+  }
+  .fixed-note{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: var(--gray);
+    background: #f7f7f7;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  .fixed-note b{ color: var(--black); }
+  .btn{
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+  .btn-main{
+    background: var(--red);
+    color: #fff;
+    width: 100%;
+    margin-top: 4px;
+    padding: 13px;
+    font-size: 14px;
+  }
+  .btn-main:hover{ background: var(--red-dark); }
+  .btn-secondary{
+    background: #fff;
+    border: 1.5px solid var(--red);
+    color: var(--red);
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px;
+  }
+  .btn-secondary:hover{ background: #fdeceb; }
+  .status{
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    margin-top: 8px;
+    min-height: 16px;
+    color: var(--red);
+  }
+
+  /* ---------- PREVIEW ---------- */
+  .preview-wrap{
+    display:flex;
+    justify-content:center;
+  }
+  #invoice{
+    background: #fff;
+    width: 794px;
+    min-height: 1123px;
+    padding: 55px 55px 40px 55px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+  }
+  .inv-header{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+  }
+  .inv-title{
+    font-size: 34px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: var(--black);
+  }
+  .inv-meta{
+    text-align:right;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+  .inv-meta b{ color: var(--black); }
+  .parties{
+    display:flex;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 34px;
+  }
+  .party{ width: 48%; }
+  .party h3{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--red);
+    margin: 0 0 8px 0;
+  }
+  .party .name{
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .party .line{
+    font-family: Arial, sans-serif;
+    font-size: 12.5px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+  table.items{
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+  table.items thead th{
+    background: var(--red);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  table.items thead th.num{ text-align: right; }
+  table.items tbody td{
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.items tbody td.num{ text-align: right; white-space: nowrap; }
+  .totals{
+    display:flex;
+    justify-content: flex-end;
+    margin-bottom: 40px;
+  }
+  .totals table{
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    min-width: 260px;
+  }
+  .totals td{ padding: 6px 4px; }
+  .totals tr.grand td{
+    font-size: 16px;
+    font-weight: bold;
+    border-top: 2px solid var(--black);
+    padding-top: 10px;
+    color: var(--black);
+  }
+  .totals tr.grand td.lbl{ color: var(--black); }
+  .payment{
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+  .payment h3{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--red);
+    margin: 0 0 8px 0;
+  }
+  .payment .line{
+    font-family: Arial, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--black);
+  }
+  .payment .line b{ color: var(--gray); font-weight: normal; display:inline-block; width: 130px;}
+  .notes{
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: var(--gray);
+    font-style: italic;
+  }
+
+  @media print{
+    .panel{ display:none; }
+    .app{ grid-template-columns: 1fr; padding:0; }
+    body{ background:#fff; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- FORM -->
+  <div class="panel" id="formPanel">
+    <h2>Tạo hóa đơn nhanh</h2>
+
+    <div class="smart-box">
+      <label>Nhập lệnh</label>
+      <textarea id="smartCmd" rows="3">Tạo cho tôi 1 hóa đơn thì cho Nguyễn Văn A, Giá 400.000 VNĐ số lượng 1</textarea>
+      <button class="btn btn-main" onclick="handleSmartCommand()">⚡ Tạo & Xuất PDF ngay</button>
+      <div class="hint">Ví dụ: "Tạo cho tôi 1 hóa đơn thì cho [Tên khách], Giá [số tiền] VNĐ số lượng [số]". Dịch vụ, ngân hàng đã được cố định sẵn.</div>
+      <div class="status" id="cmdStatus"></div>
+    </div>
+
+    <div class="section-title">Hoặc chỉnh tay</div>
+    <div class="row2">
+      <div class="field">
+        <label>Số hóa đơn</label>
+        <input id="invNumber" value="INV-001" oninput="render()">
+      </div>
+      <div class="field">
+        <label>Ngày</label>
+        <input id="invDate" type="date" oninput="render()">
+      </div>
+    </div>
+
+    <div class="field"><label>Tên khách hàng</label><input id="toName" value="Nguyễn Văn A" oninput="render()"></div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Số lượng</label>
+        <input id="itQty" type="number" min="0" step="1" value="1" oninput="render()">
+      </div>
+      <div class="field">
+        <label>Đơn giá (VNĐ)</label>
+        <input id="itPrice" type="number" min="0" step="1000" value="400000" oninput="render()">
+      </div>
+    </div>
+
+    <div class="fixed-note">
+      <b>Dịch vụ (cố định):</b> Dịch vụ vẽ 2D/3D<br>
+      <b>Ngân hàng (cố định):</b> Momo<br>
+      <b>Tên tài khoản (cố định):</b> NGUYEN MANH TU<br>
+      <b>Số tài khoản (cố định):</b> PSP2616416000000196
+    </div>
+
+    <button class="btn btn-secondary" onclick="exportPDF()">⬇ Chỉ xuất PDF</button>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-wrap">
+    <div id="invoice">
+      <div class="inv-header">
+        <div>
+          <div class="inv-title">INVOICE</div>
+        </div>
+        <div class="inv-meta">
+          <div>Số hóa đơn: <b id="pvNumber">INV-001</b></div>
+          <div>Ngày: <b id="pvDate">-</b></div>
+        </div>
+      </div>
+
+      <div class="parties">
+        <div class="party">
+          <h3>TỪ</h3>
+          <div class="name">Nguyễn Mạnh Tú</div>
+          <div class="line">Thiết kế 2D/3D - AutoCAD, SolidWorks</div>
+          <div class="line">Thủ Dầu Một, TP. Hồ Chí Minh</div>
+        </div>
+        <div class="party">
+          <h3>GỬI ĐẾN</h3>
+          <div class="name" id="pvToName"></div>
+        </div>
+      </div>
+
+      <table class="items">
+        <thead>
+          <tr>
+            <th>Mô tả</th>
+            <th class="num">SL</th>
+            <th class="num">Đơn giá (VNĐ)</th>
+            <th class="num">Thành tiền (VNĐ)</th>
+          </tr>
+        </thead>
+        <tbody id="pvItems"></tbody>
+      </table>
+
+      <div class="totals">
+        <table>
+          <tr><td class="lbl">Tạm tính</td><td class="num" id="pvSubtotal">0</td></tr>
+          <tr class="grand"><td class="lbl">TỔNG CỘNG</td><td class="num" id="pvGrand">0 VNĐ</td></tr>
+        </table>
+      </div>
+
+      <div class="payment">
+        <h3>THÔNG TIN THANH TOÁN</h3>
+        <div class="line"><b>Ngân hàng:</b> Momo</div>
+        <div class="line"><b>Tên tài khoản:</b> NGUYEN MANH TU</div>
+        <div class="line"><b>Số tài khoản:</b> PSP2616416000000196</div>
+      </div>
+
+      <div class="notes">Cảm ơn bạn đã sử dụng dịch vụ!</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const FIXED_SERVICE = "Dịch vụ vẽ 2D/3D";
+
+function fmt(n){
+  return Number(n||0).toLocaleString('vi-VN');
+}
+
+function val(id){
+  return document.getElementById(id).value;
+}
+
+function formatDate(d){
+  if(!d) return '-';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function render(){
+  document.getElementById('pvNumber').textContent = val('invNumber');
+  document.getElementById('pvDate').textContent = formatDate(val('invDate'));
+  document.getElementById('pvToName').textContent = val('toName');
+
+  const qty = Number(val('itQty') || 0);
+  const price = Number(val('itPrice') || 0);
+  const amount = qty * price;
+
+  document.getElementById('pvItems').innerHTML = `
+    <tr>
+      <td>${FIXED_SERVICE}</td>
+      <td class="num">${fmt(qty)}</td>
+      <td class="num">${fmt(price)}</td>
+      <td class="num">${fmt(amount)}</td>
+    </tr>`;
+
+  document.getElementById('pvSubtotal').textContent = fmt(amount);
+  document.getElementById('pvGrand').textContent = fmt(amount) + ' VNĐ';
+}
+
+function exportPDF(){
+  const el = document.getElementById('invoice');
+  const opt = {
+    margin: 0,
+    filename: (val('invNumber') || 'invoice') + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' }
+  };
+  return html2pdf().set(opt).from(el).save();
+}
+
+// ---- Smart command parser ----
+// Ví dụ câu lệnh: "Tạo cho tôi 1 hóa đơn thì cho Nguyễn Văn A, Giá 400.000 VNĐ số lượng 1"
+function handleSmartCommand(){
+  const text = val('smartCmd').trim();
+  const statusEl = document.getElementById('cmdStatus');
+  if(!text){
+    statusEl.textContent = 'Vui lòng nhập lệnh.';
+    return;
+  }
+
+  // Tên khách hàng: sau "cho" (lần xuất hiện thứ 2 trở đi, tránh "cho tôi"), trước dấu phẩy hoặc trước "giá"
+  let name = null;
+  const nameMatch = text.match(/cho\s+(?!tôi\b)([^,]+?)(?:,|\s+giá\b|\s+gi[áa]\b|$)/i);
+  if(nameMatch) name = nameMatch[1].trim();
+
+  // Giá: số sau "giá", có thể có dấu chấm/phẩy
+  let price = null;
+  const priceMatch = text.match(/gi[áa]\s*[:]?\s*([\d.,]+)/i);
+  if(priceMatch){
+    price = parseVNNumber(priceMatch[1]);
+  }
+
+  // Số lượng: số sau "số lượng"
+  let qty = null;
+  const qtyMatch = text.match(/s[ốo]\s*l[ưu][ợo]ng\s*[:]?\s*([\d.,]+)/i);
+  if(qtyMatch){
+    qty = parseVNNumber(qtyMatch[1]);
+  }
+
+  if(!name && !price && !qty){
+    statusEl.textContent = '⚠ Không nhận diện được thông tin. Hãy kiểm tra lại cú pháp.';
+    return;
+  }
+
+  if(name) document.getElementById('toName').value = name;
+  if(price !== null) document.getElementById('itPrice').value = price;
+  if(qty !== null) document.getElementById('itQty').value = qty;
+
+  // Số hóa đơn tự tăng nếu chưa đặt tay, ngày = hôm nay
+  document.getElementById('invDate').valueAsDate = new Date();
+
+  render();
+  statusEl.textContent = '✓ Đã điền thông tin, đang xuất PDF...';
+
+  exportPDF().then(() => {
+    statusEl.textContent = '✓ Đã xuất PDF thành công!';
+  }).catch(() => {
+    statusEl.textContent = '✓ Đã điền thông tin (kiểm tra PDF vừa tải).';
+  });
+}
+
+function parseVNNumber(str){
+  // Xử lý số kiểu Việt Nam: "400.000" hoặc "400,000" hoặc "400000"
+  const cleaned = str.replace(/[.,](?=\d{3}(\D|$))/g, '').replace(',', '.');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? null : n;
+}
+
+// init
+document.getElementById('invDate').valueAsDate = new Date();
+render();
+</script>
+
+</body>
+</html>
