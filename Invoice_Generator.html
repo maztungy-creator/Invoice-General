@@ -442,8 +442,28 @@
       <input id="emailCustom" placeholder="VD: ten@example.com" oninput="render()">
     </div>
 
-    <div class="fixed-note">
-      <b>Chuyên môn:</b> Thiết kế 2D/3D - AutoCAD, SolidWorks
+    <div class="field">
+      <label>Chuyên môn</label>
+      <select id="roleType" onchange="onRoleTypeChange()">
+        <option value="fixed" selected>1. Giữ nguyên như cũ</option>
+        <option value="custom">2. Tự nhập</option>
+      </select>
+    </div>
+    <div class="field" id="roleCustomWrap" style="display:none;">
+      <label>Chuyên môn tự nhập</label>
+      <input id="roleCustom" placeholder="VD: Thiết kế nội thất" oninput="render()">
+    </div>
+
+    <div class="field">
+      <label>Địa chỉ</label>
+      <select id="addrType" onchange="onAddrTypeChange()">
+        <option value="fixed" selected>1. Giữ nguyên như cũ</option>
+        <option value="custom">2. Tự nhập</option>
+      </select>
+    </div>
+    <div class="field" id="addrCustomWrap" style="display:none;">
+      <label>Địa chỉ tự nhập</label>
+      <input id="addrCustom" placeholder="VD: Quận 1, TP. Hồ Chí Minh" oninput="render()">
     </div>
 
     <div class="section-title">Người nhận (GỬI ĐẾN)</div>
@@ -521,8 +541,8 @@
           <h3>TỪ</h3>
           <div class="name" id="pvSenderName">Nguyễn Mạnh Tú</div>
           <div class="line" id="pvEmail"></div>
-          <div class="line">Thiết kế 2D/3D - AutoCAD, SolidWorks</div>
-          <div class="line">Thủ Dầu Một, TP. Hồ Chí Minh</div>
+          <div class="line" id="pvRole"></div>
+          <div class="line" id="pvAddr"></div>
         </div>
         <div class="party">
           <h3>GỬI ĐẾN</h3>
@@ -570,6 +590,8 @@ const FIXED_SERVICE = "Dịch vụ vẽ 2D/3D";
 const FIXED_ACCT_NAME = "NGUYEN MANH TU";
 const FIXED_EMAIL = "MazTu.Ngy@gmail.com";
 const FIXED_SENDER_NAME = "Nguyễn Mạnh Tú";
+const FIXED_ROLE = "Thiết kế 2D/3D - AutoCAD, SolidWorks";
+const FIXED_ADDR = "Thủ Dầu Một, TP. Hồ Chí Minh";
 
 // 5 ngan hang pho bien VN + 2 ngan hang quoc te + Momo = 8 lua chon.
 // Dung huy hieu (monogram) theo mau thuong hieu thay vi logo chinh thuc,
@@ -674,6 +696,32 @@ function getSenderName(){
   return FIXED_SENDER_NAME;
 }
 
+function onRoleTypeChange(){
+  const isCustom = val('roleType') === 'custom';
+  document.getElementById('roleCustomWrap').style.display = isCustom ? 'block' : 'none';
+  render();
+}
+
+function onAddrTypeChange(){
+  const isCustom = val('addrType') === 'custom';
+  document.getElementById('addrCustomWrap').style.display = isCustom ? 'block' : 'none';
+  render();
+}
+
+function getRole(){
+  if(val('roleType') === 'custom'){
+    return val('roleCustom').trim() || '(chưa nhập chuyên môn)';
+  }
+  return FIXED_ROLE;
+}
+
+function getAddr(){
+  if(val('addrType') === 'custom'){
+    return val('addrCustom').trim() || '(chưa nhập địa chỉ)';
+  }
+  return FIXED_ADDR;
+}
+
 function getEmail(){
   if(val('emailType') === 'custom'){
     return val('emailCustom').trim() || '(chưa nhập email)';
@@ -701,6 +749,8 @@ function render(){
   document.getElementById('pvSenderName').textContent = getSenderName();
   document.getElementById('pvToName').textContent = val('toName');
   document.getElementById('pvEmail').textContent = getEmail();
+  document.getElementById('pvRole').textContent = getRole();
+  document.getElementById('pvAddr').textContent = getAddr();
 
   const qty = Number(val('itQty') || 0);
   const price = Number(val('itPrice') || 0);
