@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quán Nước Nhà Mình — Sổ Đặt Nước</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-top">
+    <div class="logo">🥤 Quán Nước Nhà Mình</div>
+    <div class="tagline">Sổ đặt nước — ai khát cứ chọn, cuối buổi gộp một sổ</div>
+    <div class="tabs">
+      <button class="tab-btn" data-role="owner"><span class="lock-ic">🔒</span>Chủ quán</button>
+      <button class="tab-btn active" data-role="customer">Khách hàng</button>
+    </div>
+  </div>
+  <div class="photo-string" id="photo-string"></div>
+</div>
+
+<main>
+
+  <!-- ============ OWNER VIEW ============ -->
+  <section id="view-owner" class="view">
+
+    <div class="owner-subtabs">
+      <button class="owner-subtab-btn active" data-subtab="dashboard">🧾 Quản lý quán</button>
+      <button class="owner-subtab-btn" data-subtab="history">📖 Sổ ghi chép</button>
+    </div>
+
+    <div id="owner-subview-dashboard" class="owner-subview active">
+      <div class="owner-layout">
+        <div class="col-session">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Đợt đặt nước</span>
+                <span id="session-pill" class="pill closed">Đã đóng</span>
+              </div>
+              <div id="owner-session-actions"></div>
+            </div>
+
+            <div id="owner-revenue" class="revenue" style="display:none;">
+              <div class="num" id="owner-revenue-num">0đ</div>
+              <div class="lbl">Tổng doanh thu đợt này · <span id="owner-order-count">0</span> đơn</div>
+            </div>
+
+            <div id="owner-tickets" class="ticket-roll"></div>
+          </div>
+        </div>
+
+        <div class="col-side">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">📋 Menu &amp; giá</div>
+            </div>
+            <div id="menu-list"></div>
+            <div class="add-drink-row">
+              <input type="text" id="new-drink-name" placeholder="Tên món mới…">
+              <input type="number" id="new-drink-price" placeholder="Giá">
+              <button class="btn btn-ghost" id="add-drink-btn">+ Thêm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="owner-subview-history" class="owner-subview">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📖 Sổ ghi chép</div>
+        </div>
+        <div id="history-summary" class="history-summary"></div>
+        <div id="history-list"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ CUSTOMER VIEW ============ -->
+  <section id="view-customer" class="view active">
+    <div class="name-bar">
+      <label for="customer-name">Tên của bạn</label>
+      <input type="text" id="customer-name" placeholder="Nhập tên để chủ quán biết đơn của bạn…">
+    </div>
+
+    <div id="customer-content"></div>
+  </section>
+
+</main>
+
+<div id="stamp-toast" class="stamp-toast">Đã nhận đơn ✓</div>
+
+<div id="pin-overlay" class="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-title" id="pin-title">Nhập mã chủ quán</div>
+    <div class="pin-sub" id="pin-sub">Trang này chỉ dành cho chủ quán.</div>
+    <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" placeholder="••••">
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-actions">
+      <button class="btn btn-ghost" id="pin-cancel">Huỷ</button>
+      <button class="btn btn-primary" id="pin-submit">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
